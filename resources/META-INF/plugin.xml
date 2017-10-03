@@ -29,9 +29,9 @@
   </extensions>
 
   <actions>
-    <group id="MyPlugin.TestMeu" text="Greeting" description="Greeting menu">
+    <group id="DevTools.TestMeu" text="Greeting" description="Greeting menu">
       <add-to-group group-id="MainToolBar" anchor="last"/>
-      <action id="Myplugin.Textboxes" class="HelloAction" text="Hello" description="Says hello" icon="thumbsup.png"/>
+      <action id="DevTools.ReloadApp" class="ReloadAction" text="Reload Application" description="Says hello" icon="thumbsup.png"/>
     </group>
   </actions>
 
