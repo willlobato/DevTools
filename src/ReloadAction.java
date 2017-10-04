@@ -60,7 +60,7 @@ public class ReloadAction extends AnAction {
             }
 
             final String app = (String) JOptionPane.showInputDialog(null,
-                    "Choose de application",
+                    "Choose the application",
                     "Application",
                     JOptionPane.QUESTION_MESSAGE,
                     null,
