@@ -12,12 +12,16 @@ import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import javax.swing.*;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
 public class ReloadAction extends AnAction {
+
+    private final static String FILE_CONFIGURATION = ".devtoolsIntellij";
+    private final static String PROP_PROFILE_PATH = "profile.path";
 
     private final static String PROFILE_PATH = "C:/devtools/var/was_liberty_profile/servers/mxlocal201711/";
     private final static String DIR_APPS = "/apps";
@@ -35,6 +39,28 @@ public class ReloadAction extends AnAction {
 
         JMXConnector jmxConnector = null;
         try {
+
+            final String userHome = System.getProperties().getProperty("user.home");
+
+            final File fileConfiguration = new File(userHome + "/" + FILE_CONFIGURATION);
+            Properties propConfiguration = null;
+            if(!fileConfiguration.exists()) {
+                boolean created = fileConfiguration.createNewFile();
+                if(created) {
+
+//                    Messages.showInputDialog(project, "Profile Path",
+
+                }
+
+            } else {
+
+            }
+            propConfiguration = new Properties();
+//            propConfiguration.load(new FileInputStream());
+
+
+
+
 
             File fileApps = new File(PROFILE_PATH + DIR_APPS);
             File[] apps = fileApps.listFiles();

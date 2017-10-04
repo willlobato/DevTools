@@ -1,8 +1,8 @@
 <idea-plugin>
   <id>org.jetbrains</id>
-  <name>will</name>
+  <name>DevTools</name>
   <version>1.0</version>
-  <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
+  <vendor email="will.lobato@gmail.com" url="https://github.com/willlobato/DevTools">Will Lobato</vendor>
 
   <description><![CDATA[
       Enter short description for your plugin here.<br>
@@ -29,9 +29,13 @@
   </extensions>
 
   <actions>
-    <group id="DevTools.TestMeu" text="Greeting" description="Greeting menu">
+    <group id="DevTools.ReloadApp" text="Tool Reload" description="Tool Reload">
       <add-to-group group-id="MainToolBar" anchor="last"/>
-      <action id="DevTools.ReloadApp" class="ReloadAction" text="Reload Application" description="Says hello" icon="thumbsup.png"/>
+      <action id="DevTools.ReloadAction" class="ReloadAction" text="Reload Application" description="Reload Application" icon="thumbsup.png"/>
+    </group>
+    <group id="DevTools.Menu" text="DevTools" description="DevTools">
+      <add-to-group group-id="MainMenu" anchor="last"/>
+      <action id="DevTools.Configuration" class="ConfigurationAction" text="Configuration" description="Configuration"/>
     </group>
   </actions>
 
