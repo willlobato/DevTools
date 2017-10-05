@@ -36,6 +36,7 @@
     <group id="DevTools.Menu" text="DevTools" description="DevTools">
       <add-to-group group-id="MainMenu" anchor="last"/>
       <action id="DevTools.Configuration" class="ConfigurationAction" text="Configuration" description="Configuration"/>
+      <action id="DevTools.ReloadActionMenu" class="ReloadAction" text="Reload Application" description="Reload Application"/>
     </group>
   </actions>
 
