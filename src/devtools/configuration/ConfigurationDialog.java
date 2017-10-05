@@ -139,9 +139,9 @@ public class ConfigurationDialog extends JDialog {
 
     public static void main(String[] args) throws Exception {
         ConfigurationDialog dialog = new ConfigurationDialog();
+        dialog.setSize(500,200);
         dialog.setLocationRelativeTo(null);
-        dialog.pack();
         dialog.setVisible(true);
-        System.exit(0);
+//        System.exit(0);
     }
 }

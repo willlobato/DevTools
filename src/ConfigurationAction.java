@@ -14,8 +14,9 @@ public class ConfigurationAction extends AnAction {
         Project project = event.getData(PlatformDataKeys.PROJECT);
         try {
             ConfigurationDialog dialog = new ConfigurationDialog();
+            dialog.setTitle("Configuration");
+            dialog.setSize(500,200);
             dialog.setLocationRelativeTo(null);
-            dialog.pack();
             dialog.setVisible(true);
         } catch (Exception e) {
             Messages.showMessageDialog(project, e.getMessage(), "Error", Messages.getErrorIcon());
