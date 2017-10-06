@@ -1,8 +1,13 @@
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleUtil;
+import com.intellij.openapi.module.StdModuleTypes;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.wm.WindowManager;
 import com.twelvemonkeys.util.LinkedMap;
 import devtools.configuration.Configuration;
 import devtools.configuration.DevToolsProperties;
@@ -14,12 +19,14 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.List;
 
 public class ReloadAction extends AnAction {
 
@@ -31,8 +38,20 @@ public class ReloadAction extends AnAction {
 
     @Override
     public void actionPerformed(AnActionEvent event) {
+//        ProjectManager pm = ProjectManager.getInstance();
 
-        Project project = event.getData(PlatformDataKeys.PROJECT);
+        final Project project = event.getData(PlatformDataKeys.PROJECT);
+        final WindowManager windowManager = WindowManager.getInstance();
+        final Window parentWindow;
+        if (windowManager != null) {
+            parentWindow = windowManager.suggestParentWindow(project);
+        } else {
+            Messages.showMessageDialog(project, "Unknown error", "Error", Messages.getErrorIcon());
+            return;
+        }
+//        Project project = event.getData(PlatformDataKeys.PROJECT);
+//        Collection<Module> modules = ModuleUtil.getModulesOfType(project, StdModuleTypes.JAVA);
+//        System.out.println(modules);
 
         JMXConnector jmxConnector = null;
         try {
@@ -68,7 +87,7 @@ public class ReloadAction extends AnAction {
                         profileSelected = appsChoose[0];
                     }
 
-                    final String appSelected = (String) JOptionPane.showInputDialog(null,
+                    final String appSelected = (String) JOptionPane.showInputDialog(parentWindow,
                             "Choose the application:",
                             "Application",
                             JOptionPane.QUESTION_MESSAGE,

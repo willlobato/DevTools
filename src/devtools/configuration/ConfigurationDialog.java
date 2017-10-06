@@ -3,6 +3,7 @@ package devtools.configuration;
 import com.intellij.openapi.ui.Messages;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.io.FileFilter;
@@ -62,8 +63,8 @@ public class ConfigurationDialog extends JDialog {
         }
     }
 
-    public ConfigurationDialog() throws Exception {
-
+    public ConfigurationDialog(Window parentWindow) throws Exception {
+        super(parentWindow);
         init();
 
         setContentPane(contentPane);
@@ -138,7 +139,7 @@ public class ConfigurationDialog extends JDialog {
     }
 
     public static void main(String[] args) throws Exception {
-        ConfigurationDialog dialog = new ConfigurationDialog();
+        ConfigurationDialog dialog = new ConfigurationDialog(null);
         dialog.setSize(500,200);
         dialog.setLocationRelativeTo(null);
         dialog.setVisible(true);
