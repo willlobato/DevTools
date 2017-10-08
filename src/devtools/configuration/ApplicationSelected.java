@@ -10,11 +10,6 @@ public class ApplicationSelected {
     public ApplicationSelected() {
     }
 
-    public ApplicationSelected(String appName, File application) {
-        this.appName = appName;
-        this.application = application;
-    }
-
     public String getAppName() {
         return appName;
     }

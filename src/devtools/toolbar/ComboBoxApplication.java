@@ -9,8 +9,8 @@ import com.intellij.openapi.ui.Messages;
 import devtools.configuration.ApplicationSelected;
 import devtools.configuration.Configuration;
 import devtools.configuration.DevToolsProperties;
-import devtools.menu.ReloadAction;
 import devtools.util.DevToolsUtil;
+import devtools.util.GeneralConstants;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,16 +22,12 @@ import java.util.Map;
 public class ComboBoxApplication extends ComboBoxAction {
 
     private DevToolsProperties toolsProperties;
-    private Configuration configuration;
-    private String appSelected;
+    private String appSelectedWhenInitializing;
 
-    public ComboBoxApplication() {
-        try {
-            this.toolsProperties = new DevToolsProperties();
-            this.appSelected = toolsProperties.getProperty(DevToolsProperties.PROP_APPLICATION_SELECTED);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public ComboBoxApplication() throws IOException {
+        this.toolsProperties = new DevToolsProperties();
+        this.appSelectedWhenInitializing = toolsProperties.
+                getProperty(DevToolsProperties.PROP_APPLICATION_SELECTED);
     }
 
     @NotNull
@@ -41,11 +37,12 @@ public class ComboBoxApplication extends ComboBoxAction {
         final Project project = CommonDataKeys.PROJECT.getData(DataManager.getInstance().getDataContext(jComponent));
         try {
             SelectApplicationComponent component = SelectApplicationComponent.getManager(project);
+            //When initializing the plugin
             if (component.getApplications() == null) {
                 this.toolsProperties.load();
-                this.configuration = toolsProperties.loadConfigurationToReload();
+                Configuration configuration = toolsProperties.loadConfigurationToReload();
                 if(!(configuration.profilePathIsBlank() || configuration.profileUseIsBlank())) {
-                    Map<String, File> applications = DevToolsUtil.getApplications(this.configuration);
+                    Map<String, File> applications = DevToolsUtil.getApplications(configuration);
                     component.setApplications(applications);
                     addApplicationItems(group, applications);
                 }
@@ -53,7 +50,7 @@ public class ComboBoxApplication extends ComboBoxAction {
                 addApplicationItems(group, component.getApplications());
             }
         } catch (IOException ex) {
-            Messages.showMessageDialog(project, ex.getMessage(), "Error", Messages.getErrorIcon());
+            Messages.showMessageDialog(project, ex.getMessage(), GeneralConstants.ERROR, Messages.getErrorIcon());
         }
         return group;
     }
@@ -84,13 +81,14 @@ public class ComboBoxApplication extends ComboBoxAction {
                 presentation.setText(appName);
                 presentation.setIcon(getIcon(appName));
             } else {
-                if (appSelected != null && !appSelected.equals("")) {
-                    component.getApplicationSelected().setAppName(appSelected);
-                    presentation.setText(appSelected);
-                    presentation.setIcon(getIcon(appSelected));
-                    appSelected = null;
+                if (appSelectedWhenInitializing != null && !appSelectedWhenInitializing.equals("")) {
+                    component.getApplicationSelected().setAppName(appSelectedWhenInitializing);
+                    presentation.setText(appSelectedWhenInitializing);
+                    presentation.setIcon(getIcon(appSelectedWhenInitializing));
+                    appSelectedWhenInitializing = null;
                 } else {
                     presentation.setText("");
+                    presentation.setIcon(null);
                 }
             }
         }
@@ -134,7 +132,7 @@ public class ComboBoxApplication extends ComboBoxAction {
                     applicationSelected.setApplication(getValue());
                     toolsProperties.save(DevToolsProperties.PROP_APPLICATION_SELECTED, getKey());
                 } catch (IOException ex) {
-                    Messages.showMessageDialog(project, ex.getMessage(), "Error", Messages.getErrorIcon());
+                    Messages.showMessageDialog(project, ex.getMessage(), GeneralConstants.ERROR, Messages.getErrorIcon());
                 }
             }
         }

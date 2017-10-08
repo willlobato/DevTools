@@ -29,21 +29,24 @@
   </extensions>
 
   <actions>
+    <!-- MENU -->
     <group id="devtools.menu.DevToolsMenu" class="devtools.menu.DevToolsMenu">
       <add-to-group group-id="MainMenu" anchor="last"/>
     </group>
 
+    <!-- TOOLBAR -->
     <group id="devTools.toolbar">
-      <action id="devTools.action.selectApplication" class="devtools.toolbar.ComboBoxApplication"/>
-      <action id="devTools.action.reload" class="devtools.menu.ReloadAction" text="Reload Application" description="Reload Application" icon="/rocket-16.png"/>
+      <action id="devtools.toolbar.ComboBoxApplication" class="devtools.toolbar.ComboBoxApplication"/>
+      <action id="devtools.toolbar.RestartApplicationAction" class="devtools.toolbar.RestartApplicationAction" icon="/rocket-16.png"/>
       <add-to-group group-id="MainToolBar" anchor="last"/>
     </group>
+
 
     <group id="devTools.projectView" popup="true" text="DevTools" icon="/computer-16.png">
       <action id="addProjectToProfile" class="devtools.action.projectview.AddProjectToProfile" text="Add Project To Profile Libertu"/>
       <add-to-group group-id="ProjectViewPopupMenu" anchor="before" relative-to-action="AddToFavorites"/>
     </group>
-    <action id="devtools.toolbar.ApplicationItem" class="devtools.toolbar.ApplicationItem" text="ApplicationItem"/>
+
   </actions>
 
   <application-components>

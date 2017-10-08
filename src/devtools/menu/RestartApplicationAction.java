@@ -12,7 +12,9 @@ import com.twelvemonkeys.util.LinkedMap;
 import devtools.configuration.ApplicationSelected;
 import devtools.configuration.Configuration;
 import devtools.configuration.DevToolsProperties;
+import devtools.exception.DevToolsException;
 import devtools.util.DevToolsUtil;
+import devtools.util.JMXWebsphereConnector;
 import devtools.util.ProfileConstants;
 import devtools.toolbar.SelectApplicationComponent;
 import devtools.util.GeneralConstants;
@@ -30,20 +32,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.List;
 
-public class ReloadAction extends AnAction {
-
-    private static final String LABEL = "Reload Application";
-    private static final Icon ICON = IconLoader.getIcon("/rocket-16.png");
-
-    public ReloadAction() {
-        super(LABEL, null, ICON);
-    }
-
-    /** FileNotificationMBean name */
-    private final static String MBEAN_FILE_NOTIFICATION = "WebSphere:service=com.ibm.ws.kernel.filemonitor.FileNotificationMBean";
-    /** FileNotificationMBean method notifyFileChanges signature */
-    private final static String[] MBEAN_FILE_NOTIFICATION_NOTIFYFILECHANGES_SIGNATURE = new String[] {
-            Collection.class.getName(), Collection.class.getName(), Collection.class.getName() };
+public class RestartApplicationAction extends AnAction {
 
     @Override
     public void actionPerformed(AnActionEvent event) {
@@ -58,6 +47,7 @@ public class ReloadAction extends AnAction {
                 Messages.showMessageDialog(project, "Unknown error", GeneralConstants.ERROR, Messages.getErrorIcon());
                 return;
             }
+//        ProjectManager pm = ProjectManager.getInstance();
 //        Project project = event.getData(PlatformDataKeys.PROJECT);
 //        Collection<Module> modules = ModuleUtil.getModulesOfType(project, StdModuleTypes.JAVA);
 //        System.out.println(modules);
@@ -91,19 +81,20 @@ public class ReloadAction extends AnAction {
 
                 SelectApplicationComponent component = SelectApplicationComponent.getManager(project);
                 ApplicationSelected applicationSelected = component.getApplicationSelected();
-                String[] appsToChoose = applications.keySet().toArray(new String[applications.size()]);
-                String appName = applicationSelected.getAppName() != null
+                final String[] appsToChoose = applications.keySet().toArray(new String[applications.size()]);
+
+                String appNameSelected = applicationSelected.getAppName() != null
                         ? applicationSelected.getAppName() : appsToChoose[0];
-                final String appSelectedStr = (String) JOptionPane.showInputDialog(parentWindow,
+                appNameSelected = (String) JOptionPane.showInputDialog(parentWindow,
                         "Choose the application:", "Application",
-                        JOptionPane.QUESTION_MESSAGE, null, appsToChoose, appName);
+                        JOptionPane.QUESTION_MESSAGE, null, appsToChoose, appNameSelected);
 
-                if(appSelectedStr != null) {
-                    File appSelected = new File(applications.get(appSelectedStr).getAbsolutePath());
+                if(appNameSelected != null) {
+                    File appSelected = new File(applications.get(appNameSelected).getAbsolutePath());
 
-                    applicationSelected.setAppName(appSelectedStr);
+                    applicationSelected.setAppName(appNameSelected);
                     applicationSelected.setApplication(appSelected);
-                    toolsProperties.save(DevToolsProperties.PROP_APPLICATION_SELECTED, appSelectedStr);
+                    toolsProperties.save(DevToolsProperties.PROP_APPLICATION_SELECTED, appNameSelected);
 
                     final String pathUrl = DevToolsUtil.getJndiPath(configuration);
                     if(!Files.exists(Paths.get(pathUrl))) {
@@ -116,11 +107,12 @@ public class ReloadAction extends AnAction {
                     List<String> lines = Files.readAllLines(Paths.get(pathUrl));
                     String urlJndi = lines.get(0);
 
-                    JMXServiceURL serviceUrl = new JMXServiceURL(urlJndi);
-                    jmxConnector = JMXConnectorFactory.connect(serviceUrl, null);
-
-                    notifyFileChange(project, jmxConnector, applicationSelected);
+                    JMXWebsphereConnector jmxWebsphere = new JMXWebsphereConnector();
+                    jmxConnector = jmxWebsphere.connect(urlJndi);
+                    jmxWebsphere.notifyFileChange(jmxConnector, applicationSelected.getApplication());
                 }
+            } catch (DevToolsException ex) {
+                Messages.showMessageDialog(project, ex.getMessage(), GeneralConstants.ERROR, Messages.getErrorIcon());
             } catch (Exception ex) {
                 if (ex.getMessage().trim().equals("")) {
                     Messages.showMessageDialog(project, "Unknown error", GeneralConstants.ERROR, Messages.getErrorIcon());
@@ -138,31 +130,12 @@ public class ReloadAction extends AnAction {
             }
 
         });
-//        ProjectManager pm = ProjectManager.getInstance();
-
     }
 
-    private void notifyFileChange(Project project, JMXConnector jmxConnector, ApplicationSelected applicationSelected) throws IOException, MalformedObjectNameException, InstanceNotFoundException, MBeanException, ReflectionException {
-        MBeanServerConnection mbean = jmxConnector.getMBeanServerConnection();
-        // Invoke FileNotificationMBean
-        ObjectName fileMonitorMBeanName = new ObjectName(MBEAN_FILE_NOTIFICATION);
-        if (mbean.isRegistered(fileMonitorMBeanName)) {
-            // Create a list of absolute paths of each file to be checked
-            applicationSelected.getApplication().setLastModified(new Date().getTime());
-            List<String> modifiedFilePaths = new ArrayList<>();
-            modifiedFilePaths.add(applicationSelected.getApplication().getAbsolutePath());
+    private static final String LABEL = "Restart Application";
 
-            // Set MBean method notifyFileChanges parameters (createdFiles, modifiedFiles, deletedFiles)
-            Object[] params = new Object[]{null, modifiedFilePaths, null};
-
-            // Invoke FileNotificationMBean method notifyFileChanges
-            mbean.invoke(fileMonitorMBeanName, "notifyFileChanges", params,
-                    MBEAN_FILE_NOTIFICATION_NOTIFYFILECHANGES_SIGNATURE);
-        } else {
-            Messages.showMessageDialog(project,
-                    "MBean invoke request failed " + MBEAN_FILE_NOTIFICATION + " is not registered.",
-                    GeneralConstants.ERROR,
-                    Messages.getErrorIcon());
-        }
+    public RestartApplicationAction() {
+        super(LABEL, null, GeneralConstants.ICON_ROCKET);
     }
+
 }

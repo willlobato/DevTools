@@ -17,6 +17,6 @@ public class DevToolsMenu extends ActionGroup {
     @NotNull
     @Override
     public AnAction[] getChildren(@Nullable AnActionEvent anActionEvent) {
-        return new AnAction[]{new ConfigurationAction(), new ReloadAction()};
+        return new AnAction[]{new ConfigurationAction(), new RestartApplicationAction()};
     }
 }

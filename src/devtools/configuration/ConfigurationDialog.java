@@ -1,9 +1,10 @@
 package devtools.configuration;
 
 import com.intellij.openapi.project.Project;
-import devtools.menu.ReloadAction;
+import com.intellij.openapi.ui.Messages;
 import devtools.toolbar.SelectApplicationComponent;
 import devtools.util.DevToolsUtil;
+import devtools.util.GeneralConstants;
 import devtools.util.ProfileConstants;
 
 import javax.swing.*;
@@ -38,18 +39,13 @@ public class ConfigurationDialog extends JDialog {
         populateComboBox(configuration.getProfilePath(), configuration.getProfileUse());
     }
 
-    private void populateComboBox(String profilePathStr, String profileUseStr) throws IOException {
+    private void populateComboBox(String profilePathStr, String profileUseStr) {
         comboBoxModel.removeAllElements();
         File profilePath = new File(profilePathStr);
         if(profilePath.exists()) {
             comboProfile.setEnabled(true);
             final String servers = profilePath.getAbsolutePath().concat(ProfileConstants.SERVERS);
-            File[] listServers = new File(servers).listFiles(new FileFilter() {
-                @Override
-                public boolean accept(File pathname) {
-                    return !pathname.getName().contains(".");
-                }
-            });
+            File[] listServers = new File(servers).listFiles(pathname -> !pathname.getName().contains("."));
 
             if(listServers != null) {
                 for(File server : listServers) {
@@ -69,7 +65,7 @@ public class ConfigurationDialog extends JDialog {
         }
     }
 
-    public ConfigurationDialog(Window parentWindow, Project project) throws Exception {
+    public ConfigurationDialog(Window parentWindow, final Project project) throws Exception {
         super(parentWindow);
         init();
         this.project = project;
@@ -81,9 +77,9 @@ public class ConfigurationDialog extends JDialog {
             public void actionPerformed(ActionEvent e) {
                 try {
                     onOK();
-                } catch (IOException e1) {
-                    JOptionPane.showMessageDialog(null, e1.getMessage(),
-                            "Error", JOptionPane.ERROR_MESSAGE);
+                } catch (IOException ex) {
+                    Messages.showMessageDialog(project, ex.getMessage(),
+                            GeneralConstants.ERROR, Messages.getErrorIcon());
                 }
             }
         });
@@ -111,12 +107,9 @@ public class ConfigurationDialog extends JDialog {
         txtProfilePath.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
-                try {
-                    populateComboBox(txtProfilePath.getText(), null);
-                } catch (IOException e1) {
-                    JOptionPane.showMessageDialog(null, e1.getMessage(),
-                            "Error", JOptionPane.ERROR_MESSAGE);
-                }
+                ComboBoxItem selectedItem = (ComboBoxItem) comboProfile.getSelectedItem();
+                String profileSelected = selectedItem != null ? selectedItem.getKey() : null;
+                populateComboBox(txtProfilePath.getText(), profileSelected);
             }
         });
 
@@ -157,6 +150,5 @@ public class ConfigurationDialog extends JDialog {
         dialog.setSize(500,200);
         dialog.setLocationRelativeTo(null);
         dialog.setVisible(true);
-//        System.exit(0);
     }
 }

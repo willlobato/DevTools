@@ -33,10 +33,6 @@ public class SelectApplicationComponent implements ProjectComponent {
         return applicationSelected;
     }
 
-    public void setApplicationSelected(ApplicationSelected applicationSelected) {
-        this.applicationSelected = applicationSelected;
-    }
-
     public void clearApplicationSelected() {
         this.applicationSelected = new ApplicationSelected();
     }
