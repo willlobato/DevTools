@@ -73,7 +73,7 @@ public class RestartApplicationAction extends AnAction {
                     return;
                 } else if (applications.keySet().size() == 0) {
                     Messages.showMessageDialog(project,
-                            "The profile '" + configuration.getProfileUse() + "' didn't contains any virtual applications (EAR/WAR) in the 'apps' directory.",
+                            "The profile '" + configuration.getProfileUse() + "' don't have virtual applications (EAR/WAR) in the 'apps' directory.",
                             GeneralConstants.ERROR,
                             Messages.getErrorIcon());
                     return;

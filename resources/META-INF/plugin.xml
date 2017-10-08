@@ -30,20 +30,21 @@
 
   <actions>
     <!-- MENU -->
-    <group id="devtools.menu.DevToolsMenu" class="devtools.menu.DevToolsMenu">
+    <group id="devtools.menu.DevToolsMenu">
+      <action id="devtools.menu.ConfigurationAction" class="devtools.menu.ConfigurationAction" text="Configuration"/>
+      <action id="devtools.menu.RestartApplicationAction" class="devtools.menu.RestartApplicationAction" text="Restart Application"/>
       <add-to-group group-id="MainMenu" anchor="last"/>
     </group>
 
     <!-- TOOLBAR -->
     <group id="devTools.toolbar">
-      <action id="devtools.toolbar.ComboBoxApplication" class="devtools.toolbar.ComboBoxApplication"/>
-      <action id="devtools.toolbar.RestartApplicationAction" class="devtools.toolbar.RestartApplicationAction" icon="/rocket-16.png"/>
+      <action id="devtools.toolbar.ComboBoxApplication" class="devtools.toolbar.ComboBoxApplication" text="Select Application"/>
+      <action id="devtools.toolbar.RestartApplicationAction" class="devtools.toolbar.RestartApplicationAction"/>
       <add-to-group group-id="MainToolBar" anchor="last"/>
     </group>
 
-
     <group id="devTools.projectView" popup="true" text="DevTools" icon="/computer-16.png">
-      <action id="addProjectToProfile" class="devtools.action.projectview.AddProjectToProfile" text="Add Project To Profile Libertu"/>
+      <action id="addProjectToProfile" class="devtools.action.projectview.AddProjectToProfile" text="Add Project To Profile Liberty"/>
       <add-to-group group-id="ProjectViewPopupMenu" anchor="before" relative-to-action="AddToFavorites"/>
     </group>
 
