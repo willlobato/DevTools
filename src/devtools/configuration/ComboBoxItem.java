@@ -2,16 +2,16 @@ package devtools.configuration;
 
 import java.util.Objects;
 
-public class ComboServer {
+public class ComboBoxItem {
 
     private String key;
     private String value;
 
-    public ComboServer(String key) {
+    public ComboBoxItem(String key) {
         this.key = key;
     }
 
-    public ComboServer(String key, String value) {
+    public ComboBoxItem(String key, String value) {
         this.key = key;
         this.value = value;
     }
@@ -41,7 +41,7 @@ public class ComboServer {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ComboServer that = (ComboServer) o;
+        ComboBoxItem that = (ComboBoxItem) o;
         return Objects.equals(key, that.key);
     }
 

@@ -29,15 +29,31 @@
   </extensions>
 
   <actions>
-    <group id="DevTools.ReloadApp" text="Tool Reload" description="Tool Reload">
-      <add-to-group group-id="MainToolBar" anchor="last"/>
-      <action id="DevTools.ReloadAction" class="ReloadAction" text="Reload Application" description="Reload Application" icon="rocket-16.png"/>
-    </group>
-    <group id="DevTools.Menu" text="DevTools" description="DevTools">
+    <group id="devtools.menu.DevToolsMenu" class="devtools.menu.DevToolsMenu">
       <add-to-group group-id="MainMenu" anchor="last"/>
-      <action id="DevTools.Configuration" class="ConfigurationAction" text="Configuration" description="Configuration"/>
-      <action id="DevTools.ReloadActionMenu" class="ReloadAction" text="Reload Application" description="Reload Application"/>
     </group>
+
+    <group id="devTools.toolbar">
+      <action id="devTools.action.selectApplication" class="devtools.toolbar.ComboBoxApplication"/>
+      <action id="devTools.action.reload" class="devtools.menu.ReloadAction" text="Reload Application" description="Reload Application" icon="/rocket-16.png"/>
+      <add-to-group group-id="MainToolBar" anchor="last"/>
+    </group>
+
+    <group id="devTools.projectView" popup="true" text="DevTools" icon="/computer-16.png">
+      <action id="addProjectToProfile" class="devtools.action.projectview.AddProjectToProfile" text="Add Project To Profile Libertu"/>
+      <add-to-group group-id="ProjectViewPopupMenu" anchor="before" relative-to-action="AddToFavorites"/>
+    </group>
+    <action id="devtools.toolbar.ApplicationItem" class="devtools.toolbar.ApplicationItem" text="ApplicationItem"/>
   </actions>
 
+  <application-components>
+    <component>
+      <implementation-class>devtools.registration.DevToolsRegistration</implementation-class>
+    </component>
+  </application-components>
+  <project-components>
+    <component>
+      <implementation-class>devtools.toolbar.SelectApplicationComponent</implementation-class>
+    </component>
+  </project-components>
 </idea-plugin>

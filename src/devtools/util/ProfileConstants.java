@@ -1,4 +1,4 @@
-package devtools.configuration;
+package devtools.util;
 
 public class ProfileConstants {
 

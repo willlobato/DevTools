@@ -1,6 +1,10 @@
 package devtools.configuration;
 
-import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.project.Project;
+import devtools.menu.ReloadAction;
+import devtools.toolbar.SelectApplicationComponent;
+import devtools.util.DevToolsUtil;
+import devtools.util.ProfileConstants;
 
 import javax.swing.*;
 import java.awt.*;
@@ -8,6 +12,7 @@ import java.awt.event.*;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.util.Map;
 
 public class ConfigurationDialog extends JDialog {
     private JPanel contentPane;
@@ -16,10 +21,11 @@ public class ConfigurationDialog extends JDialog {
     private JTextField txtProfilePath;
     private JComboBox comboProfile;
 
-    private DefaultComboBoxModel<ComboServer> comboBoxModel = new DefaultComboBoxModel<>();
+    private DefaultComboBoxModel<ComboBoxItem> comboBoxModel = new DefaultComboBoxModel<>();
 
     private DevToolsProperties devToolsProperties;
     private Configuration configuration;
+    private Project project;
 
     private void init() throws Exception {
         devToolsProperties = new DevToolsProperties();
@@ -47,13 +53,13 @@ public class ConfigurationDialog extends JDialog {
 
             if(listServers != null) {
                 for(File server : listServers) {
-                    ComboServer comboServer = new ComboServer(server.getName(), server.getAbsolutePath());
-                    comboBoxModel.addElement(comboServer);
+                    ComboBoxItem comboBoxItem = new ComboBoxItem(server.getName(), server.getAbsolutePath());
+                    comboBoxModel.addElement(comboBoxItem);
                 }
 
                 if(profileUseStr != null) {
-                    ComboServer comboServer = new ComboServer(profileUseStr);
-                    comboProfile.setSelectedItem(comboServer);
+                    ComboBoxItem comboBoxItem = new ComboBoxItem(profileUseStr);
+                    comboProfile.setSelectedItem(comboBoxItem);
                 }
             } else {
                 comboProfile.setEnabled(false);
@@ -63,10 +69,10 @@ public class ConfigurationDialog extends JDialog {
         }
     }
 
-    public ConfigurationDialog(Window parentWindow) throws Exception {
+    public ConfigurationDialog(Window parentWindow, Project project) throws Exception {
         super(parentWindow);
         init();
-
+        this.project = project;
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
@@ -121,11 +127,19 @@ public class ConfigurationDialog extends JDialog {
     private void saveConfiguration() throws IOException {
         Configuration configuration = new Configuration();
         configuration.setProfilePath(txtProfilePath.getText());
-        ComboServer comboServer = ((ComboServer)comboProfile.getSelectedItem());
-        if(comboServer != null) {
-            configuration.setProfileUse(comboServer.getKey());
+        ComboBoxItem comboBoxItem = ((ComboBoxItem)comboProfile.getSelectedItem());
+        if(comboBoxItem != null) {
+            configuration.setProfileUse(comboBoxItem.getKey());
         }
         devToolsProperties.save(configuration);
+
+        SelectApplicationComponent applicationComponent = SelectApplicationComponent.getManager(project);
+        Map<String, File> applications = DevToolsUtil.getApplications(configuration);
+        applicationComponent.setApplications(applications);
+        if (applications == null) {
+            devToolsProperties.save(DevToolsProperties.PROP_APPLICATION_SELECTED, "");
+            applicationComponent.clearApplicationSelected();
+        }
     }
 
     private void onOK() throws IOException {
@@ -139,7 +153,7 @@ public class ConfigurationDialog extends JDialog {
     }
 
     public static void main(String[] args) throws Exception {
-        ConfigurationDialog dialog = new ConfigurationDialog(null);
+        ConfigurationDialog dialog = new ConfigurationDialog(null, null);
         dialog.setSize(500,200);
         dialog.setLocationRelativeTo(null);
         dialog.setVisible(true);

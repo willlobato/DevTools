@@ -4,8 +4,6 @@ public class Configuration {
 
     private String profilePath = "";
     private String profileUse = "";
-    private String profileSelected = "";
-
 
     public String getProfilePath() {
         return profilePath;
@@ -23,12 +21,12 @@ public class Configuration {
         this.profileUse = profileUse;
     }
 
-    public String getProfileSelected() {
-        return profileSelected;
+    public boolean profilePathIsBlank() {
+        return this.profilePath != null && this.profilePath.equals("");
     }
 
-    public void setProfileSelected(String profileSelected) {
-        this.profileSelected = profileSelected;
+    public boolean profileUseIsBlank() {
+        return this.profileUse != null && this.profileUse.equals("");
     }
 
 }
