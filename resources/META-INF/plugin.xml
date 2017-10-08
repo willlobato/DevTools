@@ -30,7 +30,7 @@
 
   <actions>
     <!-- MENU -->
-    <group id="devtools.menu.DevToolsMenu">
+    <group id="devtools.menu.DevToolsMenu" text="DevTools">
       <action id="devtools.menu.ConfigurationAction" class="devtools.menu.ConfigurationAction" text="Configuration"/>
       <action id="devtools.menu.RestartApplicationAction" class="devtools.menu.RestartApplicationAction" text="Restart Application"/>
       <add-to-group group-id="MainMenu" anchor="last"/>
