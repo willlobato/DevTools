@@ -1,9 +1,16 @@
 package devtools.util;
 
+import com.intellij.openapi.ui.Messages;
 import com.twelvemonkeys.util.LinkedMap;
 import devtools.configuration.Configuration;
+import devtools.exception.DevToolsException;
+import devtools.exception.FileNotFoundException;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
 
 public class DevToolsUtil {
@@ -29,8 +36,13 @@ public class DevToolsUtil {
                 "/" + configuration.getProfileUse();
     }
 
-    public static String getJndiPath(final Configuration configuration) {
-        return getProfilePath(configuration) + ProfileConstants.JNDI_ADDRESS_RELATIVE_PATH;
+    public static String getJndiPath(final Configuration configuration) throws FileNotFoundException, IOException {
+        String path = getProfilePath(configuration) + ProfileConstants.JNDI_ADDRESS_RELATIVE_PATH;
+        if(!Files.exists(Paths.get(path))) {
+            throw new FileNotFoundException("The file '" + path + "'\n was not found");
+        }
+        List<String> lines = Files.readAllLines(Paths.get(path));
+        return lines.get(0);
     }
 
 }

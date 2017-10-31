@@ -129,7 +129,7 @@ public class ConfigurationDialog extends JDialog {
         SelectApplicationComponent applicationComponent = SelectApplicationComponent.getManager(project);
         Map<String, File> applications = DevToolsUtil.getApplications(configuration);
         applicationComponent.setApplications(applications);
-        if (applications == null) {
+        if (applications == null || applications.size() == 0) {
             devToolsProperties.save(DevToolsProperties.PROP_APPLICATION_SELECTED, "");
             applicationComponent.clearApplicationSelected();
         }

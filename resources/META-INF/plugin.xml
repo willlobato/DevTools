@@ -26,6 +26,7 @@
 
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
+    <toolWindow id="Liberty Profile" secondary="true" icon="/plus.png" anchor="bottom" factoryClass="devtools.toolwindow.LibertyProfileToolWindow"/>
   </extensions>
 
   <actions>
@@ -40,14 +41,16 @@
     <group id="devTools.toolbar">
       <action id="devtools.toolbar.ComboBoxApplication" class="devtools.toolbar.ComboBoxApplication" text="Select Application"/>
       <action id="devtools.toolbar.RestartApplicationAction" class="devtools.toolbar.RestartApplicationAction"/>
+      <!--<action id="devtools.menu.TesteAction" class="devtools.menu.TesteAction" icon="/computer-16.png"/>-->
       <add-to-group group-id="MainToolBar" anchor="last"/>
     </group>
 
+    <!--
     <group id="devTools.projectView" popup="true" text="DevTools" icon="/computer-16.png">
       <action id="addProjectToProfile" class="devtools.action.projectview.AddProjectToProfile" text="Add Project To Profile Liberty"/>
       <add-to-group group-id="ProjectViewPopupMenu" anchor="before" relative-to-action="AddToFavorites"/>
     </group>
-
+    -->
   </actions>
 
   <application-components>

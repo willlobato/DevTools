@@ -96,16 +96,7 @@ public class RestartApplicationAction extends AnAction {
                     applicationSelected.setApplication(appSelected);
                     toolsProperties.save(DevToolsProperties.PROP_APPLICATION_SELECTED, appNameSelected);
 
-                    final String pathUrl = DevToolsUtil.getJndiPath(configuration);
-                    if(!Files.exists(Paths.get(pathUrl))) {
-                        Messages.showMessageDialog(project,
-                                "The file '" + pathUrl + "'\n was not found",
-                                GeneralConstants.ERROR, Messages.getErrorIcon());
-                        return;
-                    }
-
-                    List<String> lines = Files.readAllLines(Paths.get(pathUrl));
-                    String urlJndi = lines.get(0);
+                    final String urlJndi = DevToolsUtil.getJndiPath(configuration);
 
                     JMXWebsphereConnector jmxWebsphere = new JMXWebsphereConnector();
                     jmxConnector = jmxWebsphere.connect(urlJndi);
