@@ -9,6 +9,7 @@ import com.intellij.openapi.ui.Messages;
 import devtools.configuration.ApplicationSelected;
 import devtools.configuration.Configuration;
 import devtools.configuration.DevToolsProperties;
+import devtools.exception.DevToolsException;
 import devtools.util.DevToolsUtil;
 import devtools.util.GeneralConstants;
 import org.jetbrains.annotations.NotNull;
@@ -24,7 +25,7 @@ public class ComboBoxApplication extends ComboBoxAction {
     private DevToolsProperties toolsProperties;
     private String appSelectedWhenInitializing;
 
-    public ComboBoxApplication() throws IOException {
+    public ComboBoxApplication() throws DevToolsException {
         this.toolsProperties = new DevToolsProperties();
         this.appSelectedWhenInitializing = toolsProperties.
                 getProperty(DevToolsProperties.PROP_APPLICATION_SELECTED);
@@ -49,7 +50,7 @@ public class ComboBoxApplication extends ComboBoxAction {
             } else {
                 addApplicationItems(group, component.getApplications());
             }
-        } catch (IOException ex) {
+        } catch (DevToolsException ex) {
             Messages.showMessageDialog(project, ex.getMessage(), GeneralConstants.ERROR, Messages.getErrorIcon());
         }
         return group;
@@ -131,7 +132,7 @@ public class ComboBoxApplication extends ComboBoxAction {
                     applicationSelected.setAppName(getKey());
                     applicationSelected.setApplication(getValue());
                     toolsProperties.save(DevToolsProperties.PROP_APPLICATION_SELECTED, getKey());
-                } catch (IOException ex) {
+                } catch (DevToolsException ex) {
                     Messages.showMessageDialog(project, ex.getMessage(), GeneralConstants.ERROR, Messages.getErrorIcon());
                 }
             }

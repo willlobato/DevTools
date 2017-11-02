@@ -1,8 +1,8 @@
-package devtools.toolwindow;
+package devtools.vo;
 
 import javax.management.ObjectName;
 
-public class Application {
+public class ApplicationVO {
 
     private String application;
     private String pid;
@@ -12,7 +12,8 @@ public class Application {
     public enum Operation {
         START("start"),
         STOP("stop"),
-        RESTART("restart");
+        RESTART("restart"),
+        REFRESH("refresh");
 
         private String name;
 
@@ -25,10 +26,10 @@ public class Application {
         }
     }
 
-    public Application() {
+    public ApplicationVO() {
     }
 
-    public Application(String application, String pid, String state, ObjectName objectName) {
+    public ApplicationVO(String application, String pid, String state, ObjectName objectName) {
         this.application = application;
         this.pid = pid;
         this.state = state;
@@ -69,7 +70,7 @@ public class Application {
 
     @Override
     public String toString() {
-        return "Application{" +
+        return "ApplicationVO{" +
                 "application='" + application + '\'' +
                 ", pid='" + pid + '\'' +
                 ", state='" + state + '\'' +

@@ -17,14 +17,11 @@ import devtools.util.JMXWebsphereConnector;
 import javax.management.remote.JMXConnector;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.List;
 import java.util.Map;
 
 public class RestartApplicationAction extends AnAction {
 
-    private static final String LABEL = "Toolbar Restart Application";
+    private static final String LABEL = "Toolbar Restart ApplicationVO";
 
     public RestartApplicationAction() {
         super(LABEL, null, GeneralConstants.ICON_ROCKET);
@@ -40,13 +37,6 @@ public class RestartApplicationAction extends AnAction {
                 try {
                     final DevToolsProperties toolsProperties = new DevToolsProperties();
                     final Configuration configuration = toolsProperties.loadConfigurationToReload();
-                    if(configuration.profilePathIsBlank() || configuration.profileUseIsBlank()) {
-                        Messages.showMessageDialog(project,
-                                "Plugin is not configured. Menu > DevTools > Configuration.",
-                                GeneralConstants.ERROR,
-                                Messages.getErrorIcon());
-                        return;
-                    }
 
                     final Map<String, File> applications = DevToolsUtil.getApplications(configuration);
                     if (applications == null) {

@@ -86,7 +86,7 @@ public class RestartApplicationAction extends AnAction {
                 String appNameSelected = applicationSelected.getAppName() != null
                         ? applicationSelected.getAppName() : appsToChoose[0];
                 appNameSelected = (String) JOptionPane.showInputDialog(parentWindow,
-                        "Choose the application:", "Application",
+                        "Choose the application:", "ApplicationVO",
                         JOptionPane.QUESTION_MESSAGE, null, appsToChoose, appNameSelected);
 
                 if(appNameSelected != null) {
@@ -123,7 +123,7 @@ public class RestartApplicationAction extends AnAction {
         });
     }
 
-    private static final String LABEL = "Restart Application";
+    private static final String LABEL = "Restart ApplicationVO";
 
     public RestartApplicationAction() {
         super(LABEL, null, GeneralConstants.ICON_ROCKET);

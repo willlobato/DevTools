@@ -2,6 +2,7 @@ package devtools.configuration;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import devtools.exception.ConfigurationException;
 import devtools.toolbar.SelectApplicationComponent;
 import devtools.util.DevToolsUtil;
 import devtools.util.GeneralConstants;
@@ -77,7 +78,7 @@ public class ConfigurationDialog extends JDialog {
             public void actionPerformed(ActionEvent e) {
                 try {
                     onOK();
-                } catch (IOException ex) {
+                } catch (ConfigurationException ex) {
                     Messages.showMessageDialog(project, ex.getMessage(),
                             GeneralConstants.ERROR, Messages.getErrorIcon());
                 }
@@ -117,7 +118,7 @@ public class ConfigurationDialog extends JDialog {
 
     }
 
-    private void saveConfiguration() throws IOException {
+    private void saveConfiguration() throws ConfigurationException {
         Configuration configuration = new Configuration();
         configuration.setProfilePath(txtProfilePath.getText());
         ComboBoxItem comboBoxItem = ((ComboBoxItem)comboProfile.getSelectedItem());
@@ -135,13 +136,12 @@ public class ConfigurationDialog extends JDialog {
         }
     }
 
-    private void onOK() throws IOException {
+    private void onOK() throws ConfigurationException {
         saveConfiguration();
         dispose();
     }
 
     private void onCancel() {
-        // add your code here if necessary
         dispose();
     }
 

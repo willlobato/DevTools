@@ -29,4 +29,11 @@ public class Configuration {
         return this.profileUse != null && this.profileUse.equals("");
     }
 
+    @Override
+    public String toString() {
+        return "Configuration{" +
+                "profilePath='" + profilePath + '\'' +
+                ", profileUse='" + profileUse + '\'' +
+                '}';
+    }
 }

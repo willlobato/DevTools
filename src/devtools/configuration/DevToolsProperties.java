@@ -1,6 +1,13 @@
 package devtools.configuration;
 
-import java.io.*;
+import devtools.exception.ConfigurationException;
+import devtools.exception.DevToolsException;
+import devtools.exception.PluginNotConfiguratedException;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Properties;
 
 public class DevToolsProperties {
@@ -15,41 +22,54 @@ public class DevToolsProperties {
 
     private final static String DEFAULT_PROFILE_PATH = "C:/devtools/var/was_liberty_profile";
 
-    public DevToolsProperties() throws IOException {
+    public DevToolsProperties() throws DevToolsException {
         propConfig = new Properties();
         createConfigurationIfNotExist();
     }
 
-    public void load() throws IOException {
+    public void load() throws ConfigurationException {
         createConfigurationIfNotExist();
     }
 
-    private void createConfigurationIfNotExist() throws IOException {
-        final File fileConfiguration = getFileConfiguration();
-        if(!fileConfiguration.exists()) {
-            if(!fileConfiguration.createNewFile()) {
-                throw new IOException("Failed to create configuration file DevTools");
+    private void createConfigurationIfNotExist() throws ConfigurationException {
+        try {
+            final File fileConfiguration = getFileConfiguration();
+            if(!fileConfiguration.exists()) {
+                if(!fileConfiguration.createNewFile()) {
+                    throw new ConfigurationException("Failed to create configuration file DevTools");
+                }
+                save(new Configuration());
             }
-            save(new Configuration());
+            propConfig.load(new FileInputStream(fileConfiguration));
+        } catch (IOException e) {
+            throw new ConfigurationException("Failed to create configuration file DevTools", e);
         }
-        propConfig.load(new FileInputStream(fileConfiguration));
     }
 
-    public Configuration loadConfiguration() throws IOException {
+    public Configuration loadConfiguration() throws DevToolsException {
         saveIfNotExist(PROP_PROFILE_PATH, DEFAULT_PROFILE_PATH);
         saveIfNotExist(PROP_PROFILE_USE, "");
         return convertToBean();
     }
 
-    public Configuration loadConfigurationToReload()  {
-        return convertToBean();
+    public Configuration loadConfigurationToReload() throws DevToolsException {
+        load();
+        Configuration configuration = convertToBean();
+        if(configuration.profilePathIsBlank() || configuration.profileUseIsBlank()) {
+            throw new PluginNotConfiguratedException("Plugin is not configured. Menu > DevTools > Configuration.");
+        }
+        return configuration;
     }
 
-    private void saveIfNotExist(String key, String value) throws IOException {
-        File fileConfiguration = getFileConfiguration();
-        if (!existPropertiesValue(key)) {
-            propConfig.setProperty(key, value);
-            propConfig.store(new FileOutputStream(fileConfiguration), "");
+    private void saveIfNotExist(String key, String value) throws DevToolsException {
+        try {
+            File fileConfiguration = getFileConfiguration();
+            if (!existPropertiesValue(key)) {
+                propConfig.setProperty(key, value);
+                propConfig.store(new FileOutputStream(fileConfiguration), "");
+            }
+        } catch (Exception e) {
+            throw new ConfigurationException("Failed to save Configuration with key = "+key + " value = " + value, e);
         }
     }
 
@@ -58,24 +78,36 @@ public class DevToolsProperties {
                         && !propConfig.getProperty(key).trim().equals(""));
     }
 
-    public void save(Configuration configuration) throws IOException {
-        File fileConfiguration = getFileConfiguration();
-        propConfig.load(new FileInputStream(fileConfiguration));
-        convertToProperties(configuration);
-        propConfig.store(new FileOutputStream(fileConfiguration), "");
+    public void save(Configuration configuration) throws ConfigurationException {
+        try {
+            File fileConfiguration = getFileConfiguration();
+            propConfig.load(new FileInputStream(fileConfiguration));
+            convertToProperties(configuration);
+            propConfig.store(new FileOutputStream(fileConfiguration), "");
+        } catch (Exception e) {
+            throw new ConfigurationException("Failed to save " + configuration.toString() , e);
+        }
     }
 
-    public void save(String key, String value) throws IOException {
-        File fileConfiguration = getFileConfiguration();
-        propConfig.load(new FileInputStream(fileConfiguration));
-        propConfig.setProperty(key, value);
-        propConfig.store(new FileOutputStream(fileConfiguration), "");
+    public void save(String key, String value) throws ConfigurationException {
+        try {
+            File fileConfiguration = getFileConfiguration();
+            propConfig.load(new FileInputStream(fileConfiguration));
+            propConfig.setProperty(key, value);
+            propConfig.store(new FileOutputStream(fileConfiguration), "");
+        } catch (Exception e) {
+            throw new ConfigurationException("Failed to save Configuration with key = "+key + " value = " + value, e);
+        }
     }
 
-    public String getProperty(String key) throws IOException {
-        File fileConfiguration = getFileConfiguration();
-        propConfig.load(new FileInputStream(fileConfiguration));
-        return propConfig.getProperty(key);
+    public String getProperty(String key) throws ConfigurationException {
+        try {
+            File fileConfiguration = getFileConfiguration();
+            propConfig.load(new FileInputStream(fileConfiguration));
+            return propConfig.getProperty(key);
+        } catch (Exception e) {
+            throw new ConfigurationException("Failed to get Configuration with key = "+key, e);
+        }
     }
 
     private Configuration convertToBean() {
@@ -96,10 +128,6 @@ public class DevToolsProperties {
 
     private static String getUserHome() {
         return System.getProperties().getProperty("user.home");
-    }
-
-    public static void main(String args[]) {
-        System.out.println();
     }
 
 }

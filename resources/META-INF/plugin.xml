@@ -26,7 +26,8 @@
 
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
-    <toolWindow id="Liberty Profile" secondary="true" icon="/plus.png" anchor="bottom" factoryClass="devtools.toolwindow.LibertyProfileToolWindow"/>
+    <!--<toolWindow id="Liberty Profile" secondary="true" icon="/plus.png" anchor="bottom" factoryClass="devtools.toolwindow.LibertyProfileToolWindow"/>-->
+    <toolWindow id="Liberty Profile" secondary="true" anchor="bottom" factoryClass="devtools.toolwindow.LibertyProfileToolWindow"/>
   </extensions>
 
   <actions>
@@ -53,11 +54,11 @@
     -->
   </actions>
 
-  <application-components>
+  <applicationVO-components>
     <component>
       <implementation-class>devtools.registration.DevToolsRegistration</implementation-class>
     </component>
-  </application-components>
+  </applicationVO-components>
   <project-components>
     <component>
       <implementation-class>devtools.toolbar.SelectApplicationComponent</implementation-class>

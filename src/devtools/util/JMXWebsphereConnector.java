@@ -1,10 +1,12 @@
 package devtools.util;
 
+import com.intellij.openapi.ui.Messages;
 import devtools.configuration.Configuration;
 import devtools.configuration.DevToolsProperties;
-import devtools.exception.FileNotFoundException;
+import devtools.exception.DevToolsException;
+import devtools.exception.JMXWebsphereException;
 import devtools.exception.MBeanNotRegistredException;
-import devtools.toolwindow.Application;
+import devtools.vo.ApplicationVO;
 
 import javax.management.*;
 import javax.management.remote.JMXConnector;
@@ -16,46 +18,104 @@ import java.util.*;
 
 public class JMXWebsphereConnector {
 
+    /** ApplicationMBean name */
+    private final static String MBEAN_APPLICATION = "WebSphere:service=com.ibm.websphere.application.ApplicationMBean,name=*";
+
+    /** RuntimeUpdateNotificationMBean name */
+    private final static String MBEAN_RUNTIME_UPDATE_NOTIFICATION = "WebSphere:name=com.ibm.websphere.runtime.update.RuntimeUpdateNotificationMBean";
+
     /** FileNotificationMBean name */
     private final static String MBEAN_FILE_NOTIFICATION = "WebSphere:service=com.ibm.ws.kernel.filemonitor.FileNotificationMBean";
+
     /** FileNotificationMBean method notifyFileChanges signature */
     private final static String[] MBEAN_FILE_NOTIFICATION_NOTIFYFILECHANGES_SIGNATURE = new String[] {
             Collection.class.getName(), Collection.class.getName(), Collection.class.getName() };
 
-    private final static String MBEAN_APPLICATION = "WebSphere:service=com.ibm.websphere.application.ApplicationMBean,name=*";
     public static final String NAME = "name";
     public static final String STATE = "State";
     public static final String PID = "Pid";
 
-    public JMXConnector connect(String urlJndi) throws IOException {
-        JMXServiceURL serviceUrl = new JMXServiceURL(urlJndi);
-        return JMXConnectorFactory.connect(serviceUrl, null);
-    }
-
-    public Set<ObjectName> getApplications(JMXConnector jmxConnector) throws IOException, MalformedObjectNameException, MBeanNotRegistredException {
-        MBeanServerConnection mbean = jmxConnector.getMBeanServerConnection();
-        ObjectName applicationsMonitorMBeanName = new ObjectName(MBEAN_APPLICATION);
-        return mbean.queryNames(applicationsMonitorMBeanName, null);
-    }
-
-    public boolean isConnected(JMXConnector jmxConnector, ObjectName appMonitorObjectName) throws IOException, MBeanNotRegistredException {
-        MBeanServerConnection mbean = jmxConnector.getMBeanServerConnection();
-        if (!mbean.isRegistered(appMonitorObjectName)) {
-            throw new MBeanNotRegistredException("MBean invoke request failed " + appMonitorObjectName.getCanonicalName() + " is not registered.");
+    public JMXConnector connect(String urlJndi) throws JMXWebsphereException {
+        try {
+            JMXServiceURL serviceUrl = new JMXServiceURL(urlJndi);
+            return JMXConnectorFactory.connect(serviceUrl, null);
+        } catch (Exception e) {
+            throw new JMXWebsphereException("Failed to create a connection to the connector server at the given address", e);
         }
-        return true;
     }
 
-    public Application getApplication(JMXConnector jmxConnector, ObjectName appMonitorObjectName) throws IOException, MalformedObjectNameException, MBeanNotRegistredException, AttributeNotFoundException, MBeanException, ReflectionException, InstanceNotFoundException {
-        MBeanServerConnection mbean = jmxConnector.getMBeanServerConnection();
-        if (!mbean.isRegistered(appMonitorObjectName)) {
-            throw new MBeanNotRegistredException("MBean invoke request failed " + appMonitorObjectName.getCanonicalName() + " is not registered.");
+    public void disconnect(JMXConnector jmxConnector) throws JMXWebsphereException {
+        try {
+            if(jmxConnector != null) {
+                jmxConnector.close();
+            }
+        } catch (Exception e) {
+            throw new JMXWebsphereException("Failed to disconnect JMXConnector", e);
         }
-        String name = appMonitorObjectName.getKeyProperty(NAME);
-        String state = mbean.getAttribute(appMonitorObjectName, STATE).toString();
-        String pid = mbean.getAttribute(appMonitorObjectName, PID).toString();
-        Application application = new Application(name, pid, state, appMonitorObjectName);
-        return application;
+    }
+
+    public MBeanServerConnection getMBeanServerConnection(JMXConnector jmxConnector, ObjectName appMonitorObjectName) throws JMXWebsphereException {
+        try {
+            MBeanServerConnection mbean = jmxConnector.getMBeanServerConnection();
+            if (!mbean.isRegistered(appMonitorObjectName)) {
+                throw new JMXWebsphereException("MBean invoke request failed " + appMonitorObjectName.getCanonicalName() + " is not registered.");
+            }
+            return mbean;
+        } catch (Exception e) {
+            throw new JMXWebsphereException("Failed to Get MBeanServerConnection", e);
+        }
+    }
+
+    public ObjectName getRuntimeUpdateNotification() throws JMXWebsphereException {
+        try {
+            ObjectName runtimeUpdateNotificationMBean = new ObjectName(MBEAN_RUNTIME_UPDATE_NOTIFICATION);
+            return runtimeUpdateNotificationMBean;
+        } catch (Exception e) {
+            throw new JMXWebsphereException("Failed to connect on MBean "+ MBEAN_RUNTIME_UPDATE_NOTIFICATION, e);
+        }
+    }
+
+    public Set<ObjectName> getApplications(JMXConnector jmxConnector) throws JMXWebsphereException {
+        try {
+            MBeanServerConnection mbean = jmxConnector.getMBeanServerConnection();
+            ObjectName applicationsMonitorMBeanName = new ObjectName(MBEAN_APPLICATION);
+            return mbean.queryNames(applicationsMonitorMBeanName, null);
+        } catch (Exception e) {
+            throw new JMXWebsphereException("Failed to connect on MBean "+ MBEAN_APPLICATION, e);
+        }
+    }
+
+//    public boolean isApplicationsConnected(JMXConnector jmxConnector) throws IOException, MBeanNotRegistredException, MalformedObjectNameException {
+//        MBeanServerConnection mbean = jmxConnector.getMBeanServerConnection();
+//        ObjectName applicationsMonitorMBeanName = new ObjectName(MBEAN_APPLICATION);
+//        if (!mbean.isRegistered(applicationsMonitorMBeanName)) {
+//            throw new MBeanNotRegistredException("MBean invoke request failed " + applicationsMonitorMBeanName.getCanonicalName() + " is not registered.");
+//        }
+//        return true;
+//    }
+//
+//    public boolean isConnected(JMXConnector jmxConnector, ObjectName appMonitorObjectName) {
+//        MBeanServerConnection mbean = jmxConnector.getMBeanServerConnection();
+//        if (!mbean.isRegistered(appMonitorObjectName)) {
+//            throw new MBeanNotRegistredException("MBean invoke request failed " + appMonitorObjectName.getCanonicalName() + " is not registered.");
+//        }
+//        return true;
+//    }
+
+    public ApplicationVO getApplication(JMXConnector jmxConnector, ObjectName appMonitorObjectName) throws JMXWebsphereException {
+        try {
+            MBeanServerConnection mbean = jmxConnector.getMBeanServerConnection();
+            if (!mbean.isRegistered(appMonitorObjectName)) {
+                throw new JMXWebsphereException("MBean invoke request failed " + appMonitorObjectName.getCanonicalName() + " is not registered.");
+            }
+            String name = appMonitorObjectName.getKeyProperty(NAME);
+            String state = mbean.getAttribute(appMonitorObjectName, STATE).toString();
+            String pid = mbean.getAttribute(appMonitorObjectName, PID).toString();
+            ApplicationVO applicationVO = new ApplicationVO(name, pid, state, appMonitorObjectName);
+            return applicationVO;
+        } catch (Exception e) {
+            throw new JMXWebsphereException("Failed to connect on MBean "+ appMonitorObjectName.getCanonicalName(), e);
+        }
     }
 
     public void notifyFileChange(JMXConnector jmxConnector, File application) throws IOException, MalformedObjectNameException, InstanceNotFoundException, MBeanException, ReflectionException, MBeanNotRegistredException {
@@ -80,16 +140,16 @@ public class JMXWebsphereConnector {
                 MBEAN_FILE_NOTIFICATION_NOTIFYFILECHANGES_SIGNATURE);
     }
 
-    public boolean invokeOperationApplication(JMXConnector jmxConnector, ObjectName appMonitorObjectName, Application.Operation operation) throws IOException, MBeanNotRegistredException, MBeanException, InstanceNotFoundException, ReflectionException {
-        MBeanServerConnection mbean = jmxConnector.getMBeanServerConnection();
-        if (!mbean.isRegistered(appMonitorObjectName)) {
-            throw new MBeanNotRegistredException("MBean invoke request failed " + appMonitorObjectName.getCanonicalName() + " is not registered.");
+    public boolean invokeOperationApplication(MBeanServerConnection mbean, ObjectName appMonitorObjectName, ApplicationVO.Operation operation) throws JMXWebsphereException {
+        try {
+            mbean.invoke(appMonitorObjectName, operation.getName(), null, null);
+        } catch (Exception e) {
+            throw new JMXWebsphereException("Failed to invoke operation " + operation.getName() +" on MBean "+ appMonitorObjectName.getCanonicalName(), e);
         }
-        mbean.invoke(appMonitorObjectName, operation.getName(), null, null);
         return true;
     }
 
-    public static void main(String args[]) throws IOException, MBeanNotRegistredException, MalformedObjectNameException, FileNotFoundException, AttributeNotFoundException, MBeanException, ReflectionException, InstanceNotFoundException {
+    public static void main(String args[]) throws DevToolsException, JMXWebsphereException, IOException {
         DevToolsProperties toolsProperties = new DevToolsProperties();
         Configuration configuration = toolsProperties.loadConfigurationToReload();
         JMXWebsphereConnector jmxWebsphere = new JMXWebsphereConnector();
@@ -98,8 +158,8 @@ public class JMXWebsphereConnector {
 
         Set<ObjectName> applications = jmxWebsphere.getApplications(jmxConnector);
         for(ObjectName objectName : applications) {
-            Application application = jmxWebsphere.getApplication(jmxConnector, objectName);
-            System.out.println(application);
+            ApplicationVO applicationVO = jmxWebsphere.getApplication(jmxConnector, objectName);
+            System.out.println(applicationVO);
         }
     }
 

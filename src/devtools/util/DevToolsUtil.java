@@ -5,6 +5,7 @@ import com.twelvemonkeys.util.LinkedMap;
 import devtools.configuration.Configuration;
 import devtools.exception.DevToolsException;
 import devtools.exception.FileNotFoundException;
+import devtools.exception.ReadPathException;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,13 +37,17 @@ public class DevToolsUtil {
                 "/" + configuration.getProfileUse();
     }
 
-    public static String getJndiPath(final Configuration configuration) throws FileNotFoundException, IOException {
+    public static String getJndiPath(final Configuration configuration) throws DevToolsException {
         String path = getProfilePath(configuration) + ProfileConstants.JNDI_ADDRESS_RELATIVE_PATH;
-        if(!Files.exists(Paths.get(path))) {
-            throw new FileNotFoundException("The file '" + path + "'\n was not found");
+        try {
+            if(!Files.exists(Paths.get(path))) {
+                throw new FileNotFoundException("The file '" + path + "'\n was not found");
+            }
+            List<String> lines = Files.readAllLines(Paths.get(path));
+            return lines.get(0);
+        } catch (IOException e) {
+            throw new ReadPathException("Failed to read path: " + path);
         }
-        List<String> lines = Files.readAllLines(Paths.get(path));
-        return lines.get(0);
     }
 
 }
