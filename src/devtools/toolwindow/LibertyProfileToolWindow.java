@@ -8,7 +8,6 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import devtools.configuration.Configuration;
 import devtools.configuration.DevToolsProperties;
-import devtools.exception.DevToolsException;
 import devtools.exception.JMXWebsphereException;
 import devtools.util.DevToolsUtil;
 import devtools.util.GeneralConstants;
@@ -57,7 +56,7 @@ public class LibertyProfileToolWindow implements ToolWindowFactory {
     private JMXConnector jmxConnector;
 
     //Application Notification
-    private ObjectName runtimeUpdateNotification;
+    private ObjectName runtimeUpdateNotificationMBean;
     private MBeanServerConnection mBeanServerConnection;
     private ApplicationNotificationListener applicationNotificationListener;
 
@@ -156,12 +155,12 @@ public class LibertyProfileToolWindow implements ToolWindowFactory {
             restartButton.setEnabled(true);
 
             try {
-                runtimeUpdateNotification = jmxWebsphere.getRuntimeUpdateNotification();
-                mBeanServerConnection = jmxWebsphere.getMBeanServerConnection(jmxConnector, runtimeUpdateNotification);
+                runtimeUpdateNotificationMBean = jmxWebsphere.getRuntimeUpdateNotification();
+                mBeanServerConnection = jmxWebsphere.getMBeanServerConnection(jmxConnector, runtimeUpdateNotificationMBean);
                 applicationNotificationListener = new ApplicationNotificationListener();
-                mBeanServerConnection.addNotificationListener(runtimeUpdateNotification, applicationNotificationListener, null, null);
+                mBeanServerConnection.addNotificationListener(runtimeUpdateNotificationMBean, applicationNotificationListener, null, null);
             } catch (Exception e) {
-
+                e.printStackTrace();
             }
 
         }
@@ -169,24 +168,24 @@ public class LibertyProfileToolWindow implements ToolWindowFactory {
 
     private void disconnectBehavior() throws JMXWebsphereException {
         try {
+            if (mBeanServerConnection != null) {
+                mBeanServerConnection.removeNotificationListener(runtimeUpdateNotificationMBean, applicationNotificationListener);
+            }
             jmxWebsphere.disconnect(jmxConnector);
-            mBeanServerConnection.removeNotificationListener(runtimeUpdateNotification, applicationNotificationListener);
             connectButton.setText(CONNECT_TEXT);
             startButton.setEnabled(false);
             stopButton.setEnabled(false);
             restartButton.setEnabled(false);
             model.setRowCount(0);
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
     }
 
     private boolean execute(@NotNull Project project, Operation operation) {
         try {
             configuration = toolsProperties.loadConfigurationToReload();
-            if (jmxConnector == null) {
-                jmxConnector = jmxWebsphere.connect(DevToolsUtil.getJndiPath(configuration));
-            }
+            jmxConnector = jmxWebsphere.connect(DevToolsUtil.getJndiPath(configuration));
 
             if (!Operation.REFRESH.equals(operation)) {
                 int row = table.getSelectedRow();
