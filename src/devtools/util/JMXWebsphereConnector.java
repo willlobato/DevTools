@@ -1,6 +1,5 @@
 package devtools.util;
 
-import com.intellij.openapi.ui.Messages;
 import devtools.configuration.Configuration;
 import devtools.configuration.DevToolsProperties;
 import devtools.exception.DevToolsException;

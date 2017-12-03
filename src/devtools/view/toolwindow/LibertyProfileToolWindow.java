@@ -1,4 +1,4 @@
-package devtools.toolwindow;
+package devtools.view.toolwindow;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
@@ -19,6 +19,7 @@ import javax.management.*;
 import javax.management.remote.JMXConnector;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Map;
@@ -28,10 +29,10 @@ import static devtools.vo.ApplicationVO.*;
 
 public class LibertyProfileToolWindow implements ToolWindowFactory {
 
-    public static final String ATTRIBUTE_APPLICATION = "Application Name";
     public static final String ATTRIBUTE_PID = "Pid";
+    public static final String ATTRIBUTE_APPLICATION = "Application Name";
     public static final String ATTRIBUTE_STATE = "State";
-    public static final String ATTRIBUTE_OBJECTNAME = "ObjectName";
+    public static final String ATTRIBUTE_OBJECT_NAME = "ObjectName";
 
     private static final String CONNECT_TEXT = "Connect";
     private static final String DISCONNECT_TEXT = "Disconnect";
@@ -61,7 +62,6 @@ public class LibertyProfileToolWindow implements ToolWindowFactory {
     private ApplicationNotificationListener applicationNotificationListener;
 
     public LibertyProfileToolWindow() {
-
         jmxWebsphere = new JMXWebsphereConnector();
         applicationNotificationListener = new ApplicationNotificationListener();
 
@@ -89,6 +89,8 @@ public class LibertyProfileToolWindow implements ToolWindowFactory {
                 execute(project, Operation.RESTART);
             }
         });
+
+        connectButton.setPreferredSize(new Dimension(100, (int)connectButton.getPreferredSize().getHeight()));
         connectButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -132,7 +134,7 @@ public class LibertyProfileToolWindow implements ToolWindowFactory {
         model.addColumn(ATTRIBUTE_PID);
         model.addColumn(ATTRIBUTE_APPLICATION);
         model.addColumn(ATTRIBUTE_STATE);
-        model.addColumn(ATTRIBUTE_OBJECTNAME);
+        model.addColumn(ATTRIBUTE_OBJECT_NAME);
         table.setModel(model);
 
         hiddenTableColumn(3);
@@ -190,7 +192,8 @@ public class LibertyProfileToolWindow implements ToolWindowFactory {
             if (!Operation.REFRESH.equals(operation)) {
                 int row = table.getSelectedRow();
                 if (row > -1) {
-                    ObjectName applicationObjectName = (ObjectName) model.getValueAt(row, 3);
+                    int column = table.getColumn(ATTRIBUTE_OBJECT_NAME).getModelIndex();
+                    ObjectName applicationObjectName = (ObjectName) model.getValueAt(row, column);
                     SwingWorker<Boolean, Void> worker = invokeOperation(project, row, operation, jmxWebsphere, jmxConnector, applicationObjectName);
                     worker.execute();
                 } else {

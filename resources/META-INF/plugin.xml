@@ -26,23 +26,23 @@
 
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
-    <!--<toolWindow id="Liberty Profile" secondary="true" icon="/plus.png" anchor="bottom" factoryClass="devtools.toolwindow.LibertyProfileToolWindow"/>-->
-    <toolWindow id="Liberty Profile" secondary="true" anchor="bottom" factoryClass="devtools.toolwindow.LibertyProfileToolWindow"/>
+    <!--<toolWindow id="Liberty Profile" secondary="true" icon="/plus.png" anchor="bottom" factoryClass="devtools.view.toolwindow.LibertyProfileToolWindow"/>-->
+    <toolWindow id="Liberty Profile" secondary="true" anchor="bottom" factoryClass="devtools.view.toolwindow.LibertyProfileToolWindow"/>
   </extensions>
 
   <actions>
     <!-- MENU -->
-    <group id="devtools.menu.DevToolsMenu" text="DevTools">
-      <action id="devtools.menu.ConfigurationAction" class="devtools.menu.ConfigurationAction" text="Configuration"/>
-      <action id="devtools.menu.RestartApplicationAction" class="devtools.menu.RestartApplicationAction" text="Restart Application"/>
+    <group id="devtools.view.menu.DevToolsMenu" text="DevTools">
+      <action id="devtools.view.menu.ConfigurationAction" class="devtools.view.menu.ConfigurationAction" text="Configuration"/>
+      <action id="devtools.view.menu.RestartApplicationAction" class="devtools.view.menu.RestartApplicationAction" text="Restart Application"/>
       <add-to-group group-id="MainMenu" anchor="last"/>
     </group>
 
     <!-- TOOLBAR -->
     <group id="devTools.toolbar">
-      <action id="devtools.toolbar.ComboBoxApplication" class="devtools.toolbar.ComboBoxApplication" text="Select Application"/>
-      <action id="devtools.toolbar.RestartApplicationAction" class="devtools.toolbar.RestartApplicationAction"/>
-      <!--<action id="devtools.menu.TesteAction" class="devtools.menu.TesteAction" icon="/computer-16.png"/>-->
+      <action id="devtools.view.toolbar.ComboBoxApplication" class="devtools.view.toolbar.ComboBoxApplication" text="Select Application"/>
+      <action id="devtools.view.toolbar.RestartApplicationAction" class="devtools.view.toolbar.RestartApplicationAction"/>
+      <!--<action id="devtools.view.menu.TesteAction" class="devtools.view.menu.TesteAction" icon="/computer-16.png"/>-->
       <add-to-group group-id="MainToolBar" anchor="last"/>
     </group>
 
@@ -54,14 +54,14 @@
     -->
   </actions>
 
-  <applicationVO-components>
+  <application-components>
     <component>
       <implementation-class>devtools.registration.DevToolsRegistration</implementation-class>
     </component>
-  </applicationVO-components>
+  </application-components>
   <project-components>
     <component>
-      <implementation-class>devtools.toolbar.SelectApplicationComponent</implementation-class>
+      <implementation-class>devtools.view.toolbar.SelectApplicationComponent</implementation-class>
     </component>
   </project-components>
 </idea-plugin>

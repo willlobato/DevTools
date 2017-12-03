@@ -1,4 +1,4 @@
-package devtools.toolbar;
+package devtools.view.toolbar;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;

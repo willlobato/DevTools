@@ -1,4 +1,4 @@
-package devtools.menu;
+package devtools.view.menu;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -6,31 +6,22 @@ import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.wm.WindowManager;
-import com.twelvemonkeys.util.LinkedMap;
 import devtools.configuration.ApplicationSelected;
 import devtools.configuration.Configuration;
 import devtools.configuration.DevToolsProperties;
 import devtools.exception.DevToolsException;
 import devtools.util.DevToolsUtil;
 import devtools.util.JMXWebsphereConnector;
-import devtools.util.ProfileConstants;
-import devtools.toolbar.SelectApplicationComponent;
+import devtools.view.toolbar.SelectApplicationComponent;
 import devtools.util.GeneralConstants;
 
-import javax.management.*;
 import javax.management.remote.JMXConnector;
-import javax.management.remote.JMXConnectorFactory;
-import javax.management.remote.JMXServiceURL;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
-import java.util.List;
 
 public class RestartApplicationAction extends AnAction {
 

@@ -3,7 +3,7 @@ package devtools.configuration;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import devtools.exception.ConfigurationException;
-import devtools.toolbar.SelectApplicationComponent;
+import devtools.view.toolbar.SelectApplicationComponent;
 import devtools.util.DevToolsUtil;
 import devtools.util.GeneralConstants;
 import devtools.util.ProfileConstants;
@@ -12,7 +12,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.util.Map;
 

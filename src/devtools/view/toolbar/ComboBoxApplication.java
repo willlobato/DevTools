@@ -1,4 +1,4 @@
-package devtools.toolbar;
+package devtools.view.toolbar;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.DataManager;
@@ -17,7 +17,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 
 public class ComboBoxApplication extends ComboBoxAction {
