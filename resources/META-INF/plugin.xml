@@ -5,13 +5,13 @@
   <vendor email="will.lobato@gmail.com" url="https://github.com/willlobato/DevTools">Will Lobato</vendor>
 
   <description><![CDATA[
-      Enter short description for your plugin here.<br>
-      <em>most HTML tags may be used</em>
+      Plugin to improve application development with IBM Liberty Profile<br>
     ]]></description>
 
   <change-notes><![CDATA[
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>
+      Features<br>
+      <em>Monitors application status remotely</em>
+      <em>ComboBox with button to perform application restart</em>
     ]]>
   </change-notes>
 

@@ -12,6 +12,8 @@ import devtools.exception.JMXWebsphereException;
 import devtools.util.DevToolsUtil;
 import devtools.util.GeneralConstants;
 import devtools.util.JMXWebsphereConnector;
+import devtools.view.util.TableConstants;
+import devtools.view.util.TableUtil;
 import devtools.vo.ApplicationVO;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,11 +31,6 @@ import static devtools.vo.ApplicationVO.*;
 
 public class LibertyProfileToolWindow implements ToolWindowFactory {
 
-    public static final String ATTRIBUTE_PID = "Pid";
-    public static final String ATTRIBUTE_APPLICATION = "Application Name";
-    public static final String ATTRIBUTE_STATE = "State";
-    public static final String ATTRIBUTE_OBJECT_NAME = "ObjectName";
-
     private static final String CONNECT_TEXT = "Connect";
     private static final String DISCONNECT_TEXT = "Disconnect";
 
@@ -43,7 +40,7 @@ public class LibertyProfileToolWindow implements ToolWindowFactory {
     private JButton startButton;
     private JButton stopButton;
     private JButton restartButton;
-    private JButton refreshButton;
+//    private JButton refreshButton;
     private JTable table;
     private JScrollPane scrollPane;
     private JButton connectButton;
@@ -65,12 +62,12 @@ public class LibertyProfileToolWindow implements ToolWindowFactory {
         jmxWebsphere = new JMXWebsphereConnector();
         applicationNotificationListener = new ApplicationNotificationListener();
 
-        refreshButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                execute(project, Operation.REFRESH);
-            }
-        });
+//        refreshButton.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                execute(project, Operation.REFRESH);
+//            }
+//        });
         startButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -131,23 +128,20 @@ public class LibertyProfileToolWindow implements ToolWindowFactory {
                 return false;
             }
         };
-        model.addColumn(ATTRIBUTE_PID);
-        model.addColumn(ATTRIBUTE_APPLICATION);
-        model.addColumn(ATTRIBUTE_STATE);
-        model.addColumn(ATTRIBUTE_OBJECT_NAME);
+        model.addColumn(TableConstants.ATTRIBUTE_PID);
+        model.addColumn(TableConstants.ATTRIBUTE_APPLICATION);
+        model.addColumn(TableConstants.ATTRIBUTE_STATE);
+        model.addColumn(TableConstants.ATTRIBUTE_OBJECT_NAME);
         table.setModel(model);
 
-        hiddenTableColumn(3);
+        TableUtil.hideTableColumn(table, 3);
+
         table.setRowHeight(22);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         scrollPane.setViewportView(table);
     }
 
-    private void hiddenTableColumn(int columnIndex) {
-        table.getColumnModel().getColumn(columnIndex).setMinWidth(0);
-        table.getColumnModel().getColumn(columnIndex).setMaxWidth(0);
-    }
 
     private void connectBehavior() {
         if(execute(project, Operation.REFRESH)) {
@@ -192,7 +186,7 @@ public class LibertyProfileToolWindow implements ToolWindowFactory {
             if (!Operation.REFRESH.equals(operation)) {
                 int row = table.getSelectedRow();
                 if (row > -1) {
-                    int column = table.getColumn(ATTRIBUTE_OBJECT_NAME).getModelIndex();
+                    int column = table.getColumn(TableConstants.ATTRIBUTE_OBJECT_NAME).getModelIndex();
                     ObjectName applicationObjectName = (ObjectName) model.getValueAt(row, column);
                     SwingWorker<Boolean, Void> worker = invokeOperation(project, row, operation, jmxWebsphere, jmxConnector, applicationObjectName);
                     worker.execute();
@@ -237,7 +231,7 @@ public class LibertyProfileToolWindow implements ToolWindowFactory {
                 try {
                     mBeanServerConnection = jmxWebsphere.getMBeanServerConnection(jmxConnector, objectName);
                     AttributeChangeNotificationFilter filter = new AttributeChangeNotificationFilter();
-                    filter.enableAttribute(ATTRIBUTE_STATE);
+                    filter.enableAttribute(TableConstants.ATTRIBUTE_STATE);
                     mBeanServerConnection.addNotificationListener(objectName, listener, filter, null);
 
                     jmxWebsphere.invokeOperationApplication(mBeanServerConnection, objectName, operation);
