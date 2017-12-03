@@ -25,9 +25,8 @@
   -->
 
   <extensions defaultExtensionNs="com.intellij">
-    <!-- Add your extensions here -->
-    <!--<toolWindow id="Liberty Profile" secondary="true" icon="/plus.png" anchor="bottom" factoryClass="devtools.view.toolwindow.LibertyProfileToolWindow"/>-->
-    <toolWindow id="Liberty Profile" secondary="true" anchor="bottom" factoryClass="devtools.view.toolwindow.LibertyProfileToolWindow"/>
+    <toolWindow id="Liberty Profile" secondary="true" icon="/earth-16.png" anchor="bottom" factoryClass="devtools.view.toolwindow.LibertyProfileToolWindow"/>
+    <toolWindow id="Applications" secondary="true" icon="/application-16.png" anchor="right" factoryClass="devtools.view.toolwindow.ApplicationsToolWindow"/>
   </extensions>
 
   <actions>

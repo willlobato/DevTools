@@ -40,7 +40,7 @@ public class LibertyProfileToolWindow implements ToolWindowFactory {
     private JButton startButton;
     private JButton stopButton;
     private JButton restartButton;
-//    private JButton refreshButton;
+
     private JTable table;
     private JScrollPane scrollPane;
     private JButton connectButton;
@@ -62,12 +62,6 @@ public class LibertyProfileToolWindow implements ToolWindowFactory {
         jmxWebsphere = new JMXWebsphereConnector();
         applicationNotificationListener = new ApplicationNotificationListener();
 
-//        refreshButton.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                execute(project, Operation.REFRESH);
-//            }
-//        });
         startButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -98,7 +92,8 @@ public class LibertyProfileToolWindow implements ToolWindowFactory {
                         disconnectBehavior();
                     }
                 } catch (JMXWebsphereException ex) {
-                    Messages.showMessageDialog(project, ex.getMessage(), GeneralConstants.ERROR, Messages.getErrorIcon());
+                    Messages.showMessageDialog(project, ex.getMessage(),
+                            GeneralConstants.ERROR, Messages.getErrorIcon());
                 }
             }
         });
@@ -113,7 +108,8 @@ public class LibertyProfileToolWindow implements ToolWindowFactory {
             setupTable();
             disconnectBehavior();
         } catch (Exception e) {
-            Messages.showMessageDialog(project, e.getMessage(), GeneralConstants.ERROR, Messages.getErrorIcon());
+            Messages.showMessageDialog(project, e.getMessage(),
+                    GeneralConstants.ERROR, Messages.getErrorIcon());
         }
 
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
@@ -165,7 +161,8 @@ public class LibertyProfileToolWindow implements ToolWindowFactory {
     private void disconnectBehavior() throws JMXWebsphereException {
         try {
             if (mBeanServerConnection != null) {
-                mBeanServerConnection.removeNotificationListener(runtimeUpdateNotificationMBean, applicationNotificationListener);
+                mBeanServerConnection.removeNotificationListener(
+                        runtimeUpdateNotificationMBean, applicationNotificationListener);
             }
             jmxWebsphere.disconnect(jmxConnector);
             connectButton.setText(CONNECT_TEXT);
