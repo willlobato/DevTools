@@ -81,7 +81,7 @@ public class LibertyProfileToolWindow implements ToolWindowFactory {
             }
         });
 
-        connectButton.setPreferredSize(new Dimension(100, (int)connectButton.getPreferredSize().getHeight()));
+        connectButton.setPreferredSize(new Dimension(120, (int)connectButton.getPreferredSize().getHeight()));
         connectButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

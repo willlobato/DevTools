@@ -26,41 +26,51 @@ import java.nio.file.Paths;
 import java.util.List;
 
 public class ApplicationToolWindowPanel extends SimpleToolWindowPanel implements Disposable {
+
+    public static final String REFRESH = "Refresh";
+    public static final String ADD_APPLICATION = "Add Application";
+    public static final String REMOVE_APPLICATION = "Remove Application";
+    public static final String APPLICATIONS_VIEW_TOOLBAR = "ApplicationsViewToolbar";
+    public static final String SERVER_XML = "server.xml";
+
     //TODO implementar
     public ApplicationToolWindowPanel() {
         super(true, true);
 
         JPanel toolBarPanel = new JPanel(new GridLayout());
         DefaultActionGroup group = new DefaultActionGroup();
-        group.add(new RefreshToolBar("Refresh", "Refresh", AllIcons.Actions.Refresh));
+        group.add(new RefreshToolBar(REFRESH, REFRESH, AllIcons.Actions.Refresh));
         group.addSeparator();
-        group.add(new AddToolBar("Add Application", "Add Application", AllIcons.ToolbarDecorator.Add));
-        group.add(new RemoveToolBar("Remove Application", "Remove Application", AllIcons.ToolbarDecorator.Remove));
+        group.add(new AddToolBar(ADD_APPLICATION, ADD_APPLICATION, AllIcons.ToolbarDecorator.Add));
+        group.add(new RemoveToolBar(REMOVE_APPLICATION, REMOVE_APPLICATION, AllIcons.ToolbarDecorator.Remove));
 
-        toolBarPanel.add(ActionManager.getInstance().createActionToolbar("ApplicationsViewToolbar", group, true).getComponent());
+        toolBarPanel.add(ActionManager.getInstance().createActionToolbar(APPLICATIONS_VIEW_TOOLBAR, group, true).getComponent());
 
         this.setToolbar(toolBarPanel);
 
         DefaultTreeModel model = new DefaultTreeModel(new DefaultMutableTreeNode());
+
         Tree tree = new Tree(model);
-
-
-//        DefaultMutableTreeNode top = new DefaultMutableTreeNode("The Java Series");
 
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
 
-        DevToolsProperties toolsProperties = null;
         try {
-            toolsProperties = new DevToolsProperties();
+            DevToolsProperties toolsProperties = new DevToolsProperties();
             Configuration configuration = toolsProperties.loadConfiguration();
-            root.setUserObject(configuration.getProfileUse());
-            Path serverXml = Paths.get(DevToolsUtil.getProfilePath(configuration), "server.xml");
+            Path serverXml = Paths.get(DevToolsUtil.getProfilePath(configuration), SERVER_XML);
             ManipulationLibertyServer libertyServer = new ManipulationLibertyServer(serverXml.toString());
+
+            root.setUserObject(String.format("%s [%s]", configuration.getProfileUse(), SERVER_XML));
 
             List<EnterpriseApplication> enterpriseApplications = libertyServer.listApplications();
             for (EnterpriseApplication application : enterpriseApplications) {
-                DefaultMutableTreeNode node = new DefaultMutableTreeNode(application.getName());
-                root.add(node);
+                DefaultMutableTreeNode applicationNode = new DefaultMutableTreeNode(application.getName());
+
+                DefaultMutableTreeNode idNode = new DefaultMutableTreeNode(String.format("id: %s", application.getId()));
+                applicationNode.add(idNode);
+                DefaultMutableTreeNode locationNode = new DefaultMutableTreeNode(String.format("location: %s", application.getLocation()));
+                applicationNode.add(locationNode);
+                root.add(applicationNode);
             }
 
         } catch (Exception e) {
