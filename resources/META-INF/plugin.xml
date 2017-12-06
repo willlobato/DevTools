@@ -26,7 +26,8 @@
 
   <extensions defaultExtensionNs="com.intellij">
     <toolWindow id="Liberty Profile" secondary="true" icon="/earth-16.png" anchor="bottom" factoryClass="devtools.view.toolwindow.LibertyProfileToolWindow"/>
-    <toolWindow id="Applications" secondary="true" icon="/application-16.png" anchor="right" factoryClass="devtools.view.toolwindow.ApplicationsToolWindow"/>
+    <toolWindow id="Applications" secondary="true" icon="/application-16.png" anchor="right" factoryClass="devtools.view.toolwindow.applications.ApplicationsToolWindow"/>
+    <moduleBuilder builderClass="devtools.view.addproject.DemoModuleWizardStep" id="DEMO_STEP" order="first"/>
   </extensions>
 
   <actions>
@@ -45,12 +46,12 @@
       <add-to-group group-id="MainToolBar" anchor="last"/>
     </group>
 
-    <!--
+
     <group id="devTools.projectView" popup="true" text="DevTools" icon="/computer-16.png">
       <action id="addProjectToProfile" class="devtools.action.projectview.AddProjectToProfile" text="Add Project To Profile Liberty"/>
       <add-to-group group-id="ProjectViewPopupMenu" anchor="before" relative-to-action="AddToFavorites"/>
     </group>
-    -->
+
   </actions>
 
   <application-components>

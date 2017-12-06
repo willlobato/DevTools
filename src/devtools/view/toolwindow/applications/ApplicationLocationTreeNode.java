@@ -1,4 +1,4 @@
-package devtools.view.toolwindow;
+package devtools.view.toolwindow.applications;
 
 import lombok.Getter;
 

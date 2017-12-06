@@ -1,4 +1,4 @@
-package devtools.view.toolwindow;
+package devtools.view.toolwindow.applications;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;

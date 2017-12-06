@@ -1,4 +1,4 @@
-package devtools.view.toolwindow;
+package devtools.view.toolwindow.applications;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.Disposable;
@@ -86,7 +86,7 @@ public class ApplicationToolWindowPanel extends SimpleToolWindowPanel implements
 
         try {
             this.toolsProperties = new DevToolsProperties();
-            Configuration configuration = this.toolsProperties.loadConfiguration();
+            Configuration configuration = this.toolsProperties.loadConfigurationToReload();
             this.dirApps = Paths.get(DevToolsUtil.getProfilePath(configuration), DIR_APPS);
             this.tree.addMouseListener(new MouseAdapterTree(dirApps));
 
@@ -152,10 +152,12 @@ public class ApplicationToolWindowPanel extends SimpleToolWindowPanel implements
                 DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
                 root.removeAllChildren();
 
-                Configuration configuration = toolsProperties.loadConfiguration();
+                Configuration configuration = toolsProperties.loadConfigurationToReload();
                 dirApps = Paths.get(DevToolsUtil.getProfilePath(configuration), DIR_APPS);
                 Path serverXml = Paths.get(DevToolsUtil.getProfilePath(configuration), SERVER_XML);
                 manipulationLibertyServer.setFilePath(serverXml.toString());
+
+                root.setUserObject(String.format("%s [%s]", configuration.getProfileUse(), SERVER_XML));
 
                 loadApplications(root, dirApps, manipulationLibertyServer);
                 model.reload((TreeNode) model.getRoot());
