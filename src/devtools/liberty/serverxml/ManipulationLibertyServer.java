@@ -1,6 +1,8 @@
 package devtools.liberty.serverxml;
 
 import devtools.liberty.serverxml.annotation.Attribute;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
@@ -30,6 +32,8 @@ public class ManipulationLibertyServer {
     private static final String ENTERPRISE_APPLICATION = "enterpriseApplication";
     private static final String SERVER = "server";
 
+    @Getter
+    @Setter
     private String filePath;
 
     public ManipulationLibertyServer(String filePath) {

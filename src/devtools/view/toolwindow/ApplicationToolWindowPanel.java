@@ -6,21 +6,40 @@ import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
+
+import com.intellij.openapi.fileEditor.OpenFileDescriptor;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.openapi.vfs.VfsUtil;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.treeStructure.Tree;
 import devtools.configuration.Configuration;
 import devtools.configuration.DevToolsProperties;
-import devtools.exception.DevToolsException;
 import devtools.liberty.serverxml.EnterpriseApplication;
 import devtools.liberty.serverxml.ManipulationLibertyServer;
 import devtools.util.DevToolsUtil;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -32,10 +51,22 @@ public class ApplicationToolWindowPanel extends SimpleToolWindowPanel implements
     public static final String REMOVE_APPLICATION = "Remove Application";
     public static final String APPLICATIONS_VIEW_TOOLBAR = "ApplicationsViewToolbar";
     public static final String SERVER_XML = "server.xml";
+    public static final String DIR_APPS = "apps";
+    private static final String TARGET_IN_ARCHIVE = "targetInArchive";
 
-    //TODO implementar
-    public ApplicationToolWindowPanel() {
+    private Project project;
+
+    private DefaultTreeModel model;
+    private Tree tree;
+    private DevToolsProperties toolsProperties;
+    private ManipulationLibertyServer manipulationLibertyServer;
+    private Path dirApps;
+    private Path serverXml;
+
+    public ApplicationToolWindowPanel(@NotNull Project project) {
         super(true, true);
+
+        this.project = project;
 
         JPanel toolBarPanel = new JPanel(new GridLayout());
         DefaultActionGroup group = new DefaultActionGroup();
@@ -48,39 +79,60 @@ public class ApplicationToolWindowPanel extends SimpleToolWindowPanel implements
 
         this.setToolbar(toolBarPanel);
 
-        DefaultTreeModel model = new DefaultTreeModel(new DefaultMutableTreeNode());
-
-        Tree tree = new Tree(model);
+        this.model = new DefaultTreeModel(new DefaultMutableTreeNode());
+        this.tree = new Tree(model);
 
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
 
         try {
-            DevToolsProperties toolsProperties = new DevToolsProperties();
-            Configuration configuration = toolsProperties.loadConfiguration();
-            Path serverXml = Paths.get(DevToolsUtil.getProfilePath(configuration), SERVER_XML);
-            ManipulationLibertyServer libertyServer = new ManipulationLibertyServer(serverXml.toString());
+            this.toolsProperties = new DevToolsProperties();
+            Configuration configuration = this.toolsProperties.loadConfiguration();
+            this.dirApps = Paths.get(DevToolsUtil.getProfilePath(configuration), DIR_APPS);
+            this.tree.addMouseListener(new MouseAdapterTree(dirApps));
+
+            this.serverXml = Paths.get(DevToolsUtil.getProfilePath(configuration), SERVER_XML);
+            this.manipulationLibertyServer = new ManipulationLibertyServer(serverXml.toString());
 
             root.setUserObject(String.format("%s [%s]", configuration.getProfileUse(), SERVER_XML));
 
-            List<EnterpriseApplication> enterpriseApplications = libertyServer.listApplications();
-            for (EnterpriseApplication application : enterpriseApplications) {
-                DefaultMutableTreeNode applicationNode = new DefaultMutableTreeNode(application.getName());
+            loadApplications(root, dirApps, manipulationLibertyServer);
 
-                DefaultMutableTreeNode idNode = new DefaultMutableTreeNode(String.format("id: %s", application.getId()));
-                applicationNode.add(idNode);
-                DefaultMutableTreeNode locationNode = new DefaultMutableTreeNode(String.format("location: %s", application.getLocation()));
-                applicationNode.add(locationNode);
-                root.add(applicationNode);
-            }
+            this.setContent(ScrollPaneFactory.createScrollPane(tree));
 
         } catch (Exception e) {
+            Messages.showMessageDialog(project, e.getMessage(), "Error", Messages.getErrorIcon());
             e.printStackTrace();
         }
+    }
 
+    private void loadApplications(DefaultMutableTreeNode root, Path dirApps, ManipulationLibertyServer manipulationLibertyServer) throws Exception {
+        List<EnterpriseApplication> enterpriseApplications = manipulationLibertyServer.listApplications();
+        for (EnterpriseApplication application : enterpriseApplications) {
+            DefaultMutableTreeNode applicationNode = new DefaultMutableTreeNode(application.getId());
 
+            DefaultMutableTreeNode idNode = new DefaultMutableTreeNode(String.format("name: %s", application.getName()));
+            applicationNode.add(idNode);
 
+            ApplicationLocationTreeNode locationTreeNode = new ApplicationLocationTreeNode(dirApps, application.getLocation());
+            if (Files.exists(locationTreeNode.resolveFullLocation())) {
+                DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder builder = builderFactory.newDocumentBuilder();
+                Document xmlDocument = builder.parse(locationTreeNode.resolveFullLocation().toFile());
+                XPath xPath = XPathFactory.newInstance().newXPath();
+                String expression = "/archive/archive/archive";
+                NodeList nodeList = (NodeList) xPath.compile(expression).evaluate(xmlDocument, XPathConstants.NODESET);
+                for (int i=0; i<nodeList.getLength(); i++) {
+                    Node item = nodeList.item(i);
+                    String targetInArchive = item.getAttributes().getNamedItem(TARGET_IN_ARCHIVE).getNodeValue();
+                    Path fileName = Paths.get(targetInArchive).getFileName();
+                    locationTreeNode.add(new DefaultMutableTreeNode(fileName));
+                }
 
-        this.setContent(ScrollPaneFactory.createScrollPane(tree));
+            }
+
+            applicationNode.add(locationTreeNode);
+            root.add(applicationNode);
+        }
     }
 
     @Override
@@ -96,7 +148,21 @@ public class ApplicationToolWindowPanel extends SimpleToolWindowPanel implements
 
         @Override
         public void actionPerformed(AnActionEvent anActionEvent) {
+            try {
+                DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
+                root.removeAllChildren();
 
+                Configuration configuration = toolsProperties.loadConfiguration();
+                dirApps = Paths.get(DevToolsUtil.getProfilePath(configuration), DIR_APPS);
+                Path serverXml = Paths.get(DevToolsUtil.getProfilePath(configuration), SERVER_XML);
+                manipulationLibertyServer.setFilePath(serverXml.toString());
+
+                loadApplications(root, dirApps, manipulationLibertyServer);
+                model.reload((TreeNode) model.getRoot());
+            } catch (Exception e) {
+                Messages.showMessageDialog(project, e.getMessage(), "Error", Messages.getErrorIcon());
+                e.printStackTrace();
+            }
         }
     }
 
@@ -120,6 +186,37 @@ public class ApplicationToolWindowPanel extends SimpleToolWindowPanel implements
 
         @Override
         public void actionPerformed(AnActionEvent anActionEvent) {
+
+        }
+    }
+
+    private class MouseAdapterTree extends MouseAdapter {
+
+        private Path dirApps;
+
+        public MouseAdapterTree(Path dirApps) {
+            super();
+            this.dirApps = dirApps;
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+            int selRow = tree.getRowForLocation(e.getX(), e.getY());
+            TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());
+            if(selRow != -1) {
+                if (e.getClickCount() == 2) {
+                    if (selPath != null && selPath.getLastPathComponent() instanceof ApplicationLocationTreeNode) {
+                        ApplicationLocationTreeNode locationTreeNode = (ApplicationLocationTreeNode) selPath.getLastPathComponent();
+                        if (Files.exists(locationTreeNode.resolveFullLocation())) {
+                            VirtualFile file = VfsUtil.findFileByIoFile(locationTreeNode.resolveFullLocation().toFile(), true);
+                            if (file != null) {
+                                new OpenFileDescriptor(project, file).navigate(true);
+                            }
+                        }
+                    }
+
+                }
+            }
 
         }
     }
